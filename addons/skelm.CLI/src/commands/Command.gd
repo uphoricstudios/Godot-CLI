@@ -4,14 +4,13 @@ var name: String = ""
 var description: String = ""
 var arguments: Array = []
 var job: FuncRef = null
-
 var _Argument
 
 
 func _init(name: String, function: FuncRef) -> void:
 	self.name = name
 	self.job = function
-	_Argument = load('res://addons/CLI/Arguments/Argument.gd')
+	_Argument = load("res://addons/skelm.CLI/src/arguments/Argument.gd")
 
 
 func set_description(desc: String):

@@ -4,21 +4,20 @@ extends Node
 
 signal user_input
 
-var COLORS
+const COLORS = preload("res://addons/skelm.CLI/src/console/Colors.gd")
+const PARSER = preload("res://addons/skelm.CLI/src/console/InputParser.gd")
+const ARGUMENT = preload("res://addons/skelm.CLI/src/arguments/Argument.gd")
+const COMMAND = preload("res://addons/skelm.CLI/src/commands/Command.gd")
+const LOAD_PATH: String = "res://addons/skelm.CLI/load/"
+
 var _commands: Dictionary = {}
 var _loaded_commands: Array = []
-var _Parser
-var _Argument
-var _Command
+var expect_input: bool = false
 var _cli_ui
 
-var expect_input: bool = false
 
 func _ready() -> void:
-	COLORS = load('res://addons/CLI/Console/Colors.gd')
-	_Parser = load("res://addons/CLI/Console/InputParser.gd")
-	_Argument = load("res://addons/CLI/Arguments/Argument.gd")
-	_Command = load("res://addons/CLI/Commands/Command.gd")
+	pass
 
 func input():
 	expect_input = true
@@ -27,9 +26,9 @@ func input():
 
 func add_command(name: String, function: FuncRef):
 	var cmd_name: String = name.to_lower()
-	var cmd = _Command.new(cmd_name, function)
+	var cmd = COMMAND.new(cmd_name, function)
 	if(!_commands.has(cmd_name)):
-		_commands[cmd.name] = cmd
+		_commands[cmd_name] = cmd
 		return cmd
 	error(color_text(cmd_name, COLORS.GOLD) + " could not be added.")
 	error("A command with that name already exists.")
@@ -78,10 +77,20 @@ func _on_cli_input_changed(text: String) -> void:
 	pass
 
 
+func _on_cli_key_pressed(event: InputEvent) -> void:
+	if(event.is_action_pressed("hotkey_up")):
+		write("up")
+		_cli_ui.line_edit.grab_focus()
+	if(event.is_action_pressed("hotkey_down")):
+		write("down")
+		_cli_ui.line_edit.grab_focus()
+
+
 func _add_cli_ui_instance(cli_ui) -> void:
 	_cli_ui = cli_ui
 	_cli_ui.line_edit.connect("text_changed", self, "_on_cli_input_changed")
 	_cli_ui.line_edit.connect("text_entered", self, "_on_cli_input_entered")
+	_cli_ui.line_edit.connect("gui_input", self, "_on_cli_key_pressed")
 	_start_up()
 
 
@@ -94,8 +103,21 @@ func _start_up() -> void:
 		"pa": Engine.get_version_info()["patch"]
 	}))
 	
-	_load_commands("res://addons/CLI/load/")
-	
+	reload_commands()
+
+
+func reload_commands() -> void:
+	var dir := Directory.new()
+	if dir.open(LOAD_PATH) == OK:
+		dir.list_dir_begin()
+		var file_name: String = dir.get_next()
+		while file_name != "":
+			if(file_name.ends_with(".gd")):
+				var command_script = load(LOAD_PATH + file_name)
+				_loaded_commands.append(command_script.new())
+			file_name = dir.get_next()
+	else:
+		print("An error occurred when trying to access the path.")
 
 
 func _parse_input(text: String) -> void:
@@ -105,7 +127,7 @@ func _parse_input(text: String) -> void:
 	var not_found_error: String = "The command {cmd_name} could not be found. Misspelled?"
 	var num_arg_error: String = "Incorrect number of arguments, {args_num} expected."
 	
-	var input: Array = _Parser.parse(text)
+	var input: Array = PARSER.parse(text)
 	var cmd_name: String = input.pop_front().to_lower()
 	
 	# Check if commmand exists
@@ -126,7 +148,7 @@ func _parse_input(text: String) -> void:
 	var i: int = 0
 	while(i < len(input)):
 		var check: int = cmd.arguments[i].set_value(input[i])
-		if(check == _Argument.CHECK.FAILED):
+		if(check == ARGUMENT.CHECK.FAILED):
 			var ori_arg: String = cmd.arguments[i].get_original_value()
 			error("Unexpected argument '{ori_arg}'".format(
 				{"ori_arg": color_text(ori_arg, COLORS.AQUA)}
@@ -140,17 +162,3 @@ func _parse_input(text: String) -> void:
 		i += 1
 	
 	cmd.execute(normalized_args)
-
-
-func _load_commands(path) -> void:
-	var dir := Directory.new()
-	if dir.open(path) == OK:
-		dir.list_dir_begin()
-		var file_name: String = dir.get_next()
-		while file_name != "":
-			if(file_name.ends_with(".gd")):
-				var command_script = load(path+file_name)
-				_loaded_commands.append(command_script.new())
-			file_name = dir.get_next()
-	else:
-		print("An error occurred when trying to access the path.")

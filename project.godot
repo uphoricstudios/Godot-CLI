@@ -20,12 +20,8 @@ run/main_scene="res://Node.tscn"
 
 [autoload]
 
-CLI="*res://addons/CLI/Console/CLI.gd"
+CLI="*res://addons/skelm.CLI/src/console/CLI.gd"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "CLI" )
-
-[rendering]
-
-environment/default_environment="res://default_env.tres"
+enabled=PoolStringArray( "skelm.CLI" )

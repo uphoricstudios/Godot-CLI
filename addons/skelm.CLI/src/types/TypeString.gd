@@ -1,6 +1,5 @@
 extends "BaseType.gd"
 
-
 func _init() -> void:
 	_name = 'String'
 	_type = TYPE_STRING

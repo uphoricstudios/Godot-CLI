@@ -5,16 +5,16 @@ enum CHECK {
 	FAILED
 }
 
-var _Types = preload('res://addons/CLI/Types/Types.gd').new()
-
+var _types
 var _name: String
 var _description: String
 var _type
 var _original_value
 
 func _init(name: String, type: int, description: String = "") -> void:
+	_types = load("res://addons/skelm.CLI/src/types/Types.gd").new()
 	_name = name
-	_type = _Types.get_type(type)
+	_type = _types.get_type(type)
 	_description = description
 
 func set_value(value: String) -> int:
@@ -36,6 +36,3 @@ func describe() -> String:
 
 func get_original_value():
 	return _original_value
-
-func test(d: bool):
-	pass
