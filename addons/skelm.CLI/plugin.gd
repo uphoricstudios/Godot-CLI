@@ -22,11 +22,12 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
-	remove_autoload_singleton(SINGLETON_NAME)
-	remove_control_from_bottom_panel(cli_ui)
 	InputMap.erase_action(HOTKEY_CLI)
 	InputMap.erase_action(HOTKEY_UP)
 	InputMap.erase_action(HOTKEY_DOWN)
+	cli_button.disconnect("toggled", cli_ui, "_on_cli_focus")
+	remove_autoload_singleton(SINGLETON_NAME)
+	remove_control_from_bottom_panel(cli_ui)
 	if(cli_ui != null):
 		cli_ui.queue_free()
 

@@ -12,15 +12,18 @@ const LOAD_PATH: String = "res://addons/skelm.CLI/load/"
 
 var _commands: Dictionary = {}
 var _loaded_commands: Array = []
-var expect_input: bool = false
+var _expect_input: bool = false
 var _cli_ui
+var _history
 
 
 func _ready() -> void:
-	pass
+	_history = load("res://addons/skelm.CLI/src/console/History.gd").new()
+	print("CLI start up")
+
 
 func input():
-	expect_input = true
+	_expect_input = true
 	return self
 
 
@@ -59,8 +62,8 @@ func error(text: String) -> void:
 
 func _on_cli_input_entered(text: String) -> void:
 	# Returns input to commands that require them
-	if(expect_input):
-		expect_input = false
+	if(_expect_input):
+		_expect_input = false
 		_cli_ui.console.append_bbcode("=> " + color_text(text, COLORS.AQUA))
 		newline()
 		_cli_ui.line_edit.clear()
@@ -68,25 +71,31 @@ func _on_cli_input_entered(text: String) -> void:
 		return
 	
 	_cli_ui.console.append_bbcode(">> " + color_text(text, COLORS.AQUA))
+	_history.push(text)
 	newline()
 	_cli_ui.line_edit.clear()
 	_parse_input(text)
 
 
 func _on_cli_input_changed(text: String) -> void:
+	_history.reset()
 	pass
 
 
 func _on_cli_key_pressed(event: InputEvent) -> void:
 	if(event.is_action_pressed("hotkey_up")):
-		write("up")
-		_cli_ui.line_edit.grab_focus()
+		var history_str: String = _history.next()
+		_cli_ui.line_edit.text = history_str
+		_cli_ui.line_edit.caret_position = history_str.length()
+		
 	if(event.is_action_pressed("hotkey_down")):
-		write("down")
-		_cli_ui.line_edit.grab_focus()
+		var history_str: String = _history.previous()
+		_cli_ui.line_edit.text = history_str
+		_cli_ui.line_edit.caret_position = history_str.length()
 
 
 func _add_cli_ui_instance(cli_ui) -> void:
+	print("called")
 	_cli_ui = cli_ui
 	_cli_ui.line_edit.connect("text_changed", self, "_on_cli_input_changed")
 	_cli_ui.line_edit.connect("text_entered", self, "_on_cli_input_entered")
@@ -107,14 +116,19 @@ func _start_up() -> void:
 
 
 func reload_commands() -> void:
+	_commands.clear()
+	_loaded_commands.clear()
 	var dir := Directory.new()
+	
 	if dir.open(LOAD_PATH) == OK:
 		dir.list_dir_begin()
 		var file_name: String = dir.get_next()
-		while file_name != "":
+		
+		while !file_name.empty():
 			if(file_name.ends_with(".gd")):
 				var command_script = load(LOAD_PATH + file_name)
 				_loaded_commands.append(command_script.new())
+			
 			file_name = dir.get_next()
 	else:
 		print("An error occurred when trying to access the path.")
@@ -126,23 +140,19 @@ func _parse_input(text: String) -> void:
 	
 	var not_found_error: String = "The command {cmd_name} could not be found. Misspelled?"
 	var num_arg_error: String = "Incorrect number of arguments, {args_num} expected."
-	
 	var input: Array = PARSER.parse(text)
 	var cmd_name: String = input.pop_front().to_lower()
 	
-	# Check if commmand exists
 	if(!_commands.has(cmd_name)):
 		error(not_found_error.format({"cmd_name": cmd_name}))
 		return
 	
 	var cmd = _commands[cmd_name]
 	
-	# Check if correct number of arguments given
 	if(len(input) != len(cmd.arguments)):
 		error(num_arg_error.format({"args_num": len(cmd.arguments)}))
 		return
 	
-	# Check if arguments are valid
 	var normalized_args: Array = []
 	
 	var i: int = 0
