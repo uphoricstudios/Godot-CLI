@@ -12,7 +12,7 @@ const LOAD_PATH: String = "res://addons/skelm.CLI/load/"
 const CONFIG_PATH: String = "res://addons/skelm.CLI/plugin.cfg"
 
 var _commands: Dictionary = {}
-var _loaded_commands: Array = []
+var _loaded_commands: Dictionary = {}
 var _expect_input: bool = false
 var _cli_ui
 var _history
@@ -115,18 +115,22 @@ func _start_up() -> void:
 
 
 func reload_commands() -> void:
-	_commands.clear()
-	_loaded_commands.clear()
-	var dir := Directory.new()
+	for key in _loaded_commands:
+		if(key != "default.gd"):
+			_loaded_commands.erase(key)
 	
+	_commands.clear()
+	
+	var dir := Directory.new()
 	if dir.open(LOAD_PATH) == OK:
 		dir.list_dir_begin()
 		var file_name: String = dir.get_next()
 		
 		while !file_name.empty():
 			if(file_name.ends_with(".gd")):
-				var command_script = load(LOAD_PATH + file_name)
-				_loaded_commands.append(command_script.new())
+				if(!_loaded_commands.has(file_name)):
+					var command_script = load(LOAD_PATH + file_name)
+					_loaded_commands[file_name] = command_script.new()
 			
 			file_name = dir.get_next()
 	else:
