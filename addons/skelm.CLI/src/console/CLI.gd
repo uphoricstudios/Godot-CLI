@@ -1,14 +1,15 @@
 tool
 extends Node
 
-
 signal user_input
 
 const COLORS = preload("res://addons/skelm.CLI/src/console/Colors.gd")
 const PARSER = preload("res://addons/skelm.CLI/src/console/InputParser.gd")
 const ARGUMENT = preload("res://addons/skelm.CLI/src/arguments/Argument.gd")
 const COMMAND = preload("res://addons/skelm.CLI/src/commands/Command.gd")
+const HOTKEYS = preload("res://addons/skelm.CLI/src/console/Hotkeys.gd")
 const LOAD_PATH: String = "res://addons/skelm.CLI/load/"
+const CONFIG_PATH: String = "res://addons/skelm.CLI/plugin.cfg"
 
 var _commands: Dictionary = {}
 var _loaded_commands: Array = []
@@ -19,7 +20,6 @@ var _history
 
 func _ready() -> void:
 	_history = load("res://addons/skelm.CLI/src/console/History.gd").new()
-	print("CLI start up")
 
 
 func input():
@@ -79,23 +79,21 @@ func _on_cli_input_entered(text: String) -> void:
 
 func _on_cli_input_changed(text: String) -> void:
 	_history.reset()
-	pass
 
 
 func _on_cli_key_pressed(event: InputEvent) -> void:
-	if(event.is_action_pressed("hotkey_up")):
+	if(event.is_action_pressed(HOTKEYS.UP)):
 		var history_str: String = _history.next()
 		_cli_ui.line_edit.text = history_str
 		_cli_ui.line_edit.caret_position = history_str.length()
 		
-	if(event.is_action_pressed("hotkey_down")):
+	if(event.is_action_pressed(HOTKEYS.DOWN)):
 		var history_str: String = _history.previous()
 		_cli_ui.line_edit.text = history_str
 		_cli_ui.line_edit.caret_position = history_str.length()
 
 
 func _add_cli_ui_instance(cli_ui) -> void:
-	print("called")
 	_cli_ui = cli_ui
 	_cli_ui.line_edit.connect("text_changed", self, "_on_cli_input_changed")
 	_cli_ui.line_edit.connect("text_entered", self, "_on_cli_input_entered")
@@ -104,14 +102,15 @@ func _add_cli_ui_instance(cli_ui) -> void:
 
 
 func _start_up() -> void:
-	var gd_version: String = "Godot {ma}.{mi}.{pa}"
-	write("Welcome user!")
-	write(gd_version.format({
-		"ma": Engine.get_version_info()["major"],
-		"mi": Engine.get_version_info()["minor"],
-		"pa": Engine.get_version_info()["patch"]
-	}))
+	var config := ConfigFile.new()
+	var err = config.load(CONFIG_PATH)
+	var version: String = "0.0.0"
+	if(err == OK):
+		version = config.get_value("plugin", "version")
 	
+	write("Skelm Studios")
+	write("Godot CLI " + version)
+	newline()
 	reload_commands()
 
 

@@ -9,7 +9,6 @@ func _init(size: int = 20) -> void:
 	_size = size
 	_current_index = 0
 	_commands = []
-	print("len start: ", len(_commands))
 
 
 func reset() -> void:

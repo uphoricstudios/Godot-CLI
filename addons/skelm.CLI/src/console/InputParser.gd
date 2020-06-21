@@ -25,7 +25,6 @@ static func parse(text: String) -> Array:
 					input_string = ""
 				word += ch
 	
-	# Make sure to get last words
 	if(!word.empty()):
 		result.append(word)
 	if(!input_string.empty()):

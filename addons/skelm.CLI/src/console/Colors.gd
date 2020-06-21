@@ -1,6 +1,4 @@
 extends Reference
-## A simple Console helper script
-# Console symbols and colors
 
 const ORANGE = "#e97500"
 const RED = "red"
