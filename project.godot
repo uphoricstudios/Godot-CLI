@@ -20,7 +20,7 @@ run/main_scene="res://Node.tscn"
 
 [autoload]
 
-CLI="*res://addons/skelm.CLI/src/console/CLI.gd"
+CLI="*res://addons/uphoric.CLI/src/console/CLI.gd"
 
 [editor_plugins]
 

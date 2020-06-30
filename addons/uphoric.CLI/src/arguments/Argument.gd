@@ -12,7 +12,7 @@ var _type
 var _original_value
 
 func _init(name: String, type: int, description: String = "") -> void:
-	_types = load("res://addons/skelm.CLI/src/types/Types.gd").new()
+	_types = load("res://addons/uphoric.CLI/src/types/Types.gd").new()
 	_name = name
 	_type = _types.get_type(type)
 	_description = description

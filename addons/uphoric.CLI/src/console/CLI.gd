@@ -3,13 +3,13 @@ extends Node
 
 signal user_input
 
-const COLORS = preload("res://addons/skelm.CLI/src/console/Colors.gd")
-const PARSER = preload("res://addons/skelm.CLI/src/console/InputParser.gd")
-const ARGUMENT = preload("res://addons/skelm.CLI/src/arguments/Argument.gd")
-const COMMAND = preload("res://addons/skelm.CLI/src/commands/Command.gd")
-const HOTKEYS = preload("res://addons/skelm.CLI/src/console/Hotkeys.gd")
-const LOAD_PATH: String = "res://addons/skelm.CLI/load/"
-const CONFIG_PATH: String = "res://addons/skelm.CLI/plugin.cfg"
+const COLORS = preload("res://addons/uphoric.CLI/src/console/Colors.gd")
+const PARSER = preload("res://addons/uphoric.CLI/src/console/InputParser.gd")
+const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
+const COMMAND = preload("res://addons/uphoric.CLI/src/commands/Command.gd")
+const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
+const LOAD_PATH: String = "res://addons/uphoric.CLI/load/"
+const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
 
 var _commands: Dictionary = {}
 var _loaded_commands: Dictionary = {}
@@ -19,7 +19,7 @@ var _history
 
 
 func _ready() -> void:
-	_history = load("res://addons/skelm.CLI/src/console/History.gd").new()
+	_history = load("res://addons/uphoric.CLI/src/console/History.gd").new()
 
 
 func input():
@@ -108,7 +108,7 @@ func _start_up() -> void:
 	if(err == OK):
 		version = config.get_value("plugin", "version")
 	
-	write("Skelm Studios")
+	write("Uphoric Studios")
 	write("Godot CLI " + version)
 	newline()
 	reload_commands()

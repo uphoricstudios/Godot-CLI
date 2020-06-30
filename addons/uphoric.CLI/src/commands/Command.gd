@@ -1,6 +1,6 @@
 extends Reference
 
-const ARGUMENT = preload("res://addons/skelm.CLI/src/arguments/Argument.gd")
+const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
 
 var name: String = ""
 var description: String = ""
