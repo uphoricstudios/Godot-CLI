@@ -24,4 +24,4 @@ CLI="*res://addons/uphoric.CLI/src/console/CLI.gd"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "skelm.CLI" )
+enabled=PoolStringArray(  )
