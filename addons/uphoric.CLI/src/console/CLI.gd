@@ -6,20 +6,30 @@ signal user_input
 const COLORS = preload("res://addons/uphoric.CLI/src/console/Colors.gd")
 const PARSER = preload("res://addons/uphoric.CLI/src/console/InputParser.gd")
 const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
-const COMMAND = preload("res://addons/uphoric.CLI/src/commands/Command.gd")
 const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
-const LOAD_PATH: String = "res://addons/uphoric.CLI/load/"
 const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
 
-var _commands: Dictionary = {}
-var _loaded_commands: Dictionary = {}
 var _expect_input: bool = false
 var _cli_ui
 var _history
+var _command_list
+var _auto
 
 
 func _ready() -> void:
 	_history = load("res://addons/uphoric.CLI/src/console/History.gd").new()
+	_command_list = load("res://addons/uphoric.CLI/src/commands/CommandList.gd").new()
+	_auto = load("res://addons/uphoric.CLI/src/console/AutoComplete.gd").new()
+#	var dir := Directory.new()
+#	var p = ProjectSettings.globalize_path("res://")
+#	if dir.open(p) == OK:
+#		dir.list_dir_begin()
+#		var tt: String = dir.get_next()
+#		print(tt)
+#		while(!tt.empty()):
+#			print(tt)
+#			tt = dir.get_next()
+	
 
 
 func input():
@@ -29,13 +39,12 @@ func input():
 
 func add_command(name: String, function: FuncRef):
 	var cmd_name: String = name.to_lower()
-	var cmd = COMMAND.new(cmd_name, function)
-	if(!_commands.has(cmd_name)):
-		_commands[cmd_name] = cmd
-		return cmd
-	error(color_text(cmd_name, COLORS.GOLD) + " could not be added.")
-	error("A command with that name already exists.")
-	return cmd
+	var check: int = _command_list.add_command(cmd_name, function)
+	if(check == _command_list.CHECK.OK):
+		return _command_list.get_command(cmd_name)
+	elif(check == _command_list.CHECK.ALREADY_EXISTS):
+		error(color_text(cmd_name, COLORS.GOLD) + " could not be added.")
+		error("A command with that name already exists.")
 
 
 func write(text: String) -> void:
@@ -85,12 +94,22 @@ func _on_cli_key_pressed(event: InputEvent) -> void:
 	if(event.is_action_pressed(HOTKEYS.UP)):
 		var history_str: String = _history.next()
 		_cli_ui.line_edit.text = history_str
-		_cli_ui.line_edit.caret_position = history_str.length()
+		_cli_ui.set_caret_to_end()
 		
 	if(event.is_action_pressed(HOTKEYS.DOWN)):
 		var history_str: String = _history.previous()
 		_cli_ui.line_edit.text = history_str
-		_cli_ui.line_edit.caret_position = history_str.length()
+		_cli_ui.set_caret_to_end()
+	
+	if(event.is_action_pressed(HOTKEYS.TAB)):
+		var text: String = _cli_ui.get_word_under_cursor()
+		print("text: ", text)
+		var auto: String = _auto.get_auto(text)
+		print("auto: ", auto)
+		# for now
+		if(!auto.empty()):
+			_cli_ui.line_edit.text = _cli_ui.line_edit.text.replace(text, auto)
+			_cli_ui.set_caret_to_end()
 
 
 func _add_cli_ui_instance(cli_ui) -> void:
@@ -112,45 +131,27 @@ func _start_up() -> void:
 	write("Godot CLI " + version)
 	newline()
 	reload_commands()
+	_auto.set_auto(_auto.AUTOTYPE.COMMAND, _command_list.get_command_names())
 
 
 func reload_commands() -> void:
-	for key in _loaded_commands:
-		if(key != "default.gd"):
-			_loaded_commands.erase(key)
-	
-	_commands.clear()
-	
-	var dir := Directory.new()
-	if dir.open(LOAD_PATH) == OK:
-		dir.list_dir_begin()
-		var file_name: String = dir.get_next()
-		
-		while !file_name.empty():
-			if(file_name.ends_with(".gd")):
-				if(!_loaded_commands.has(file_name)):
-					var command_script = load(LOAD_PATH + file_name)
-					_loaded_commands[file_name] = command_script.new()
-			
-			file_name = dir.get_next()
-	else:
-		print("An error occurred when trying to access the path.")
+	_command_list.reload_commands()
 
 
 func _parse_input(text: String) -> void:
 	if(text.empty()):
 		return
 	
-	var not_found_error: String = "The command {cmd_name} could not be found. Misspelled?"
+	var not_found_error: String = "The command {cmd_name} could not be found. Misspelt?"
 	var num_arg_error: String = "Incorrect number of arguments, {args_num} expected."
 	var input: Array = PARSER.parse(text)
 	var cmd_name: String = input.pop_front().to_lower()
 	
-	if(!_commands.has(cmd_name)):
+	if(!_command_list.has(cmd_name)):
 		error(not_found_error.format({"cmd_name": cmd_name}))
 		return
 	
-	var cmd = _commands[cmd_name]
+	var cmd = _command_list.get_command(cmd_name)
 	
 	if(len(input) != len(cmd.arguments)):
 		error(num_arg_error.format({"args_num": len(cmd.arguments)}))

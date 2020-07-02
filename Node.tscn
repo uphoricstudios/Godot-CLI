@@ -4,3 +4,13 @@
 
 [node name="Node" type="Node2D"]
 script = ExtResource( 1 )
+
+[node name="LineEdit" type="LineEdit" parent="."]
+margin_left = 11.0
+margin_top = 154.0
+margin_right = 483.0
+margin_bottom = 178.0
+text = "Hello world, this better work"
+__meta__ = {
+"_edit_use_anchors_": false
+}
