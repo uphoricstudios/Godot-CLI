@@ -102,13 +102,15 @@ func _on_cli_key_pressed(event: InputEvent) -> void:
 		_cli_ui.set_caret_to_end()
 	
 	if(event.is_action_pressed(HOTKEYS.TAB)):
-		var text: String = _cli_ui.get_word_under_cursor()
-		print("text: ", text)
-		var auto: String = _auto.get_auto(text)
+		var input: String = _cli_ui.line_edit.text
+		
+		var current: String = _cli_ui.get_word_under_cursor()
+		print("current: ", current)
+		var auto: String = _auto.get_auto(input, current)
 		print("auto: ", auto)
 		# for now
 		if(!auto.empty()):
-			_cli_ui.line_edit.text = _cli_ui.line_edit.text.replace(text, auto)
+			_cli_ui.line_edit.text = _cli_ui.line_edit.text.replace(current, auto)
 			_cli_ui.set_caret_to_end()
 
 
