@@ -11,7 +11,7 @@ func _init(size: int = 20) -> void:
 	_commands = []
 
 
-func reset() -> void:
+func reset_index() -> void:
 	_current_index = 0
 
 
@@ -33,6 +33,6 @@ func previous() -> String:
 
 
 func push(command: String) -> void:
-	_commands.push_front(command)
+	_commands.push_front(command.strip_edges())
 	if(len(_commands) > 20):
 		_commands.resize(_size)

@@ -9,6 +9,7 @@ const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
 const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
 const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
 
+var curret_dir: String
 var _expect_input: bool = false
 var _cli_ui
 var _history
@@ -20,16 +21,8 @@ func _ready() -> void:
 	_history = load("res://addons/uphoric.CLI/src/console/History.gd").new()
 	_command_list = load("res://addons/uphoric.CLI/src/commands/CommandList.gd").new()
 	_auto = load("res://addons/uphoric.CLI/src/console/AutoComplete.gd").new()
-#	var dir := Directory.new()
-#	var p = ProjectSettings.globalize_path("res://")
-#	if dir.open(p) == OK:
-#		dir.list_dir_begin()
-#		var tt: String = dir.get_next()
-#		print(tt)
-#		while(!tt.empty()):
-#			print(tt)
-#			tt = dir.get_next()
-	
+	curret_dir = ProjectSettings.globalize_path("res://")
+	print(curret_dir)
 
 
 func input():
@@ -87,7 +80,7 @@ func _on_cli_input_entered(text: String) -> void:
 
 
 func _on_cli_input_changed(text: String) -> void:
-	_history.reset()
+	_history.reset_index()
 
 
 func _on_cli_key_pressed(event: InputEvent) -> void:
@@ -95,7 +88,7 @@ func _on_cli_key_pressed(event: InputEvent) -> void:
 		var history_str: String = _history.next()
 		_cli_ui.line_edit.text = history_str
 		_cli_ui.set_caret_to_end()
-		
+	
 	if(event.is_action_pressed(HOTKEYS.DOWN)):
 		var history_str: String = _history.previous()
 		_cli_ui.line_edit.text = history_str
@@ -103,15 +96,13 @@ func _on_cli_key_pressed(event: InputEvent) -> void:
 	
 	if(event.is_action_pressed(HOTKEYS.TAB)):
 		var input: String = _cli_ui.line_edit.text
-		
-		var current: String = _cli_ui.get_word_under_cursor()
-		print("current: ", current)
+		var current: String = _cli_ui.get_path_under_cursor()
 		var auto: String = _auto.get_auto(input, current)
-		print("auto: ", auto)
-		# for now
-		if(!auto.empty()):
-			_cli_ui.line_edit.text = _cli_ui.line_edit.text.replace(current, auto)
-			_cli_ui.set_caret_to_end()
+		
+		if(auto.empty()):
+			return
+		
+		_cli_ui.replace_path_under_cursor(auto)
 
 
 func _add_cli_ui_instance(cli_ui) -> void:
@@ -133,11 +124,12 @@ func _start_up() -> void:
 	write("Godot CLI " + version)
 	newline()
 	reload_commands()
-	_auto.set_auto(_auto.AUTOTYPE.COMMAND, _command_list.get_command_names())
 
 
 func reload_commands() -> void:
 	_command_list.reload_commands()
+	_auto.set_auto("commands", _command_list.get_command_names())
+	_auto.set_auto("path", curret_dir)
 
 
 func _parse_input(text: String) -> void:
