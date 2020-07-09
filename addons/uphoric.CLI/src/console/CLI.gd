@@ -9,7 +9,7 @@ const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
 const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
 const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
 
-var curret_dir: String
+var current_dir: String
 var _expect_input: bool = false
 var _cli_ui
 var _history
@@ -21,8 +21,8 @@ func _ready() -> void:
 	_history = load("res://addons/uphoric.CLI/src/console/History.gd").new()
 	_command_list = load("res://addons/uphoric.CLI/src/commands/CommandList.gd").new()
 	_auto = load("res://addons/uphoric.CLI/src/console/AutoComplete.gd").new()
-	curret_dir = ProjectSettings.globalize_path("res://")
-	print(curret_dir)
+	current_dir = ProjectSettings.globalize_path("res://")
+	print(current_dir)
 
 
 func input():
@@ -60,6 +60,26 @@ func color_text(text: String, color: String) -> String:
 
 func error(text: String) -> void:
 	write("+ " + color_text(text, COLORS.RED))
+
+
+func reload_commands() -> void:
+	_command_list.reload_commands()
+	_auto.set_auto("commands", _command_list.get_command_names())
+	_auto.set_auto("path", current_dir)
+
+
+func get_current_directory() -> String:
+	return current_dir
+
+
+func change_working_directory(path: String) -> bool:
+	var dir: Directory = Directory.new()
+	if(dir.open(path) == OK):
+		current_dir = ProjectSettings.globalize_path(dir.get_current_dir())
+		_cli_ui.dir_label.text = current_dir
+		_auto.set_auto("path", current_dir)
+		return true
+	return false
 
 
 func _on_cli_input_entered(text: String) -> void:
@@ -114,9 +134,11 @@ func _add_cli_ui_instance(cli_ui) -> void:
 
 
 func _start_up() -> void:
+	_cli_ui.dir_label.text = current_dir
 	var config := ConfigFile.new()
 	var err = config.load(CONFIG_PATH)
 	var version: String = "0.0.0"
+	
 	if(err == OK):
 		version = config.get_value("plugin", "version")
 	
@@ -124,12 +146,6 @@ func _start_up() -> void:
 	write("Godot CLI " + version)
 	newline()
 	reload_commands()
-
-
-func reload_commands() -> void:
-	_command_list.reload_commands()
-	_auto.set_auto("commands", _command_list.get_command_names())
-	_auto.set_auto("path", curret_dir)
 
 
 func _parse_input(text: String) -> void:

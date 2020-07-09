@@ -64,6 +64,10 @@ func reload_commands() -> void:
 	_regen_command_names()
 
 
+func get_commands() -> Dictionary:
+	return _commands
+
+
 func _regen_command_names() -> void:
 	_command_names.clear()
 	for key in _commands:

@@ -3,6 +3,7 @@ extends Control
 
 onready var line_edit: LineEdit = $VBox/LineEdit
 onready var console: RichTextLabel = $VBox/RichTextLabel
+onready var dir_label: Label = $VBox/DirectoryLabel
 
 
 func _ready() -> void:

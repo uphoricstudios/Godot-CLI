@@ -5,20 +5,93 @@
 [node name="Node" type="Node2D"]
 script = ExtResource( 1 )
 
-[node name="LineEdit" type="LineEdit" parent="."]
-margin_left = 11.0
-margin_top = 154.0
-margin_right = 483.0
-margin_bottom = 178.0
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+margin_right = 40.0
+margin_bottom = 40.0
+color = Color( 0.121569, 0.109804, 0.109804, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_right = 412.0
+margin_bottom = 163.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/table_hseparation = 5
+bbcode_enabled = true
+bbcode_text = "[table=3]
+
+[cell]Name[/cell]
+[cell]|[/cell]
+[cell]Bytes[/cell]
+
+[cell]=====[/cell]
+[cell]|[/cell]
+[cell]=====[/cell]
+
+[cell]plufeDASDASDASDASDsaDASDASDdasdsadle.txt[/cell]
+[cell]|[/cell]
+[cell]2[/cell]
+
+[cell]pasdSADASDASDASDASDlugin.gd[/cell]
+[cell]|[/cell]
+[cell]54[/cell]
+
+[cell]file.txt[/cell]
+[cell]|[/cell]
+[cell]2[/cell]
+
+[cell]plugin.gd[/cell]
+[cell]|[/cell]
+[cell]54[/cell]
+
+[cell]file.txt[/cell]
+[cell]|[/cell]
+[cell]2[/cell]
+
+[/table]"
+text = "Name|Bytes=====|=====plufeDASDASDASDASDsaDASDASDdasdsadle.txt|2pasdSADASDASDASDASDlugin.gd|54file.txt|2plugin.gd|54file.txt|2"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 1023.0
+margin_bottom = 594.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+margin_right = 1023.0
+margin_bottom = 14.0
+hint_tooltip = "..."
+mouse_filter = 1
+size_flags_horizontal = 3
+text = "D://puddingman/visible/haha/vscode/"
+clip_text = true
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer"]
+margin_top = 18.0
+margin_right = 1023.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
 text = "Hello world, this better work"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorRect" type="ColorRect" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-color = Color( 0.121569, 0.109804, 0.109804, 1 )
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+margin_top = 46.0
+margin_right = 1023.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }

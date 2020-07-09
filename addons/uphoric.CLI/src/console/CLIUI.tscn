@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/uphoric.CLI/src/console/CLIUI.gd" type="Script" id=1]
+[ext_resource path="res://addons/uphoric.CLI/src/fonts/CascadiaMono16.tres" type="DynamicFont" id=2]
 
 [sub_resource type="StyleBoxEmpty" id=1]
 
@@ -22,13 +23,23 @@ __meta__ = {
 
 [node name="RichTextLabel" type="RichTextLabel" parent="VBox"]
 margin_right = 1024.0
-margin_bottom = 572.0
+margin_bottom = 554.0
 focus_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+custom_fonts/normal_font = ExtResource( 2 )
+custom_constants/table_hseparation = 2
 bbcode_enabled = true
 scroll_following = true
 selection_enabled = true
+
+[node name="DirectoryLabel" type="Label" parent="VBox"]
+margin_top = 558.0
+margin_right = 1024.0
+margin_bottom = 572.0
+size_flags_horizontal = 3
+text = "D://dev/test/directory/project/ace"
+clip_text = true
 
 [node name="LineEdit" type="LineEdit" parent="VBox"]
 margin_top = 576.0
