@@ -49,8 +49,10 @@ func clear() -> void:
 	_cli_ui.console.clear()
 
 
-func newline() -> void:
-	_cli_ui.console.newline()
+func newline(num_lines: int = 1) -> void:
+	if(num_lines >= 1):
+		for i in num_lines:
+			_cli_ui.console.newline()
 
 
 func color_text(text: String, color: String) -> String:

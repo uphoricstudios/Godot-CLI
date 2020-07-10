@@ -43,7 +43,7 @@ func _init() -> void:
 	.set_description("Backs up current Godot project to a compressed file. The file name will be the date and time of backup.")\
 	
 	CLI.add_command(terminal_name, funcref(self, 'native_terminal'))\
-	.set_description("Sends commands to the platform's native terminal. All commands will be non-blocking and will not return an output. Common use of this command is discourged, it's only meant for things that cannot be added to the CLI.")\
+	.set_description("Sends commands to the platform's native terminal. All commands will be non-blocking and will not return an output. The use of this command is discouraged, it's only meant for things that cannot be done with the CLI.")\
 	.add_argument("args", TYPE_STRING, "Arguments to be passed to the terminal.")
 	
 	CLI.add_command('commands', funcref(self, 'commands'))\
@@ -223,6 +223,31 @@ func commands() -> void:
 	CLI.newline()
 	CLI.write(results)
 
+
+func help(command: String) -> void:
+	var command_list = CLI._command_list
+	
+	if(!command_list.has(command)):
+		CLI.error("The command '" + command + "' does not exist.")
+		return
+	
+	var cmd = command_list.get_command(command)
+
+	CLI.newline()
+	CLI.write(cmd.name + ":")
+	CLI.newline()
+	CLI.write("Description: ")
+	CLI.write(cmd.description)
+	CLI.newline()
+	
+	if(cmd.arguments.empty()):
+		CLI.write("No required arguments.")
+	else:
+		CLI.write("Arguments: ")
+		for arg in cmd.arguments:
+			CLI.write(arg.describe())
+	
+	CLI.newline()
 
 
 #func get_name():

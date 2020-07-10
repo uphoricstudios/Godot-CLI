@@ -31,9 +31,7 @@ func get_command(name: String):
 
 
 func has(name: String) -> bool:
-	if(_commands.has(name)):
-		return true
-	return false
+	return _commands.has(name)
 
 func get_command_names() -> Array:
 	return _command_names
