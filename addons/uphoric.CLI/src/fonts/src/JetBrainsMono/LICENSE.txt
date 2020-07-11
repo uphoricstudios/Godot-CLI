@@ -1,0 +1,6 @@
+JetBrains Mono typeface is available under the Apache 2.0 
+license and can be used free of charge,for both commercial 
+and non-commercial purposes.
+
+Jetbrains Mono typeface is available at https://www.jetbrains.com/lp/mono/
+license can be found at https://www.jetbrains.com/lp/mono/#license
