@@ -1,6 +1,6 @@
 extends Reference
 
-const PARSER = preload("res://addons/uphoric.CLI/src/console/InputParser.gd")
+const PARSER = preload("res://addons/uphoric.CLI/src/helpers/InputParser.gd")
 const _autos: Dictionary = {}
 
 

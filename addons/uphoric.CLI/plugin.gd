@@ -4,7 +4,7 @@ extends EditorPlugin
 const CLI_SCRIPT: String = "res://addons/uphoric.CLI/src/console/CLI.gd"
 const SINGLETON_NAME: String = "CLI"
 const UI_SCENE = preload("res://addons/uphoric.CLI/src/console/CLIUI.tscn")
-const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
+const HOTKEYS = preload("res://addons/uphoric.CLI/src/helpers/Hotkeys.gd")
 #const CLI_ICON = preload("res://addons/skelm.CLI/cli_icon.svg")
 
 var cli_button: ToolButton

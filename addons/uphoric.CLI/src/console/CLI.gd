@@ -4,9 +4,9 @@ extends Node
 signal user_input
 
 const BB = preload("res://addons/uphoric.CLI/src/helpers/BB.gd")
-const PARSER = preload("res://addons/uphoric.CLI/src/console/InputParser.gd")
+const PARSER = preload("res://addons/uphoric.CLI/src/helpers/InputParser.gd")
 const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
-const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
+const HOTKEYS = preload("res://addons/uphoric.CLI/src/helpers/Hotkeys.gd")
 const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
 
 var current_dir: String
@@ -18,9 +18,9 @@ var _auto
 
 
 func _ready() -> void:
-	_history = load("res://addons/uphoric.CLI/src/console/History.gd").new()
+	_history = load("res://addons/uphoric.CLI/src/helpers/History.gd").new()
 	_command_list = load("res://addons/uphoric.CLI/src/commands/CommandList.gd").new()
-	_auto = load("res://addons/uphoric.CLI/src/console/AutoComplete.gd").new()
+	_auto = load("res://addons/uphoric.CLI/src/helpers/AutoComplete.gd").new()
 	current_dir = ProjectSettings.globalize_path("res://")
 
 
