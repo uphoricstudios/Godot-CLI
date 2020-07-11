@@ -7,10 +7,10 @@ const BB = preload("res://addons/uphoric.CLI/src/helpers/BB.gd")
 const PARSER = preload("res://addons/uphoric.CLI/src/helpers/InputParser.gd")
 const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
 const HOTKEYS = preload("res://addons/uphoric.CLI/src/helpers/Hotkeys.gd")
-const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
 
 var current_dir: String
 var _expect_input: bool = false
+var mute: bool = false
 var _cli_ui
 var _history
 var _command_list
@@ -40,8 +40,9 @@ func add_command(name: String, function: FuncRef):
 
 
 func write(text: String) -> void:
-	_cli_ui.console.append_bbcode(text)
-	_cli_ui.console.newline()
+	if(!mute):
+		_cli_ui.console.append_bbcode(text)
+		_cli_ui.console.newline()
 
 
 func clear() -> void:
@@ -76,6 +77,13 @@ func change_working_directory(path: String) -> bool:
 		_auto.set_auto("path", current_dir)
 		return true
 	return false
+
+
+func cli(command: String, silent: bool = false) -> void:
+	if(silent):
+		mute = true
+	_parse_input(command)
+	mute = false
 
 
 func _on_cli_input_entered(text: String) -> void:
@@ -131,17 +139,8 @@ func _add_cli_ui_instance(cli_ui) -> void:
 
 func _start_up() -> void:
 	_cli_ui.dir_label.text = current_dir
-	var config := ConfigFile.new()
-	var err = config.load(CONFIG_PATH)
-	var version: String = "0.0.0"
-	
-	if(err == OK):
-		version = config.get_value("plugin", "version")
-	
-	write("Uphoric Studios")
-	write("Godot CLI " + version)
-	newline()
 	reload_commands()
+	cli("about")
 
 
 func _parse_input(text: String) -> void:

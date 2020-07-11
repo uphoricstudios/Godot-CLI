@@ -2,6 +2,8 @@ extends Reference
 
 
 const BB = preload("res://addons/uphoric.CLI/src/helpers/BB.gd")
+const CONFIG_PATH: String = "res://addons/uphoric.CLI/plugin.cfg"
+
 var PLATFORM: String = OS.get_name()
 
 func _init() -> void:
@@ -49,6 +51,9 @@ func _init() -> void:
 	CLI.add_command('help', funcref(self, 'help'))\
 	.set_description("Shows command's description and arguments.")\
 	.add_argument("command", TYPE_STRING, "Name of command to get help for.")
+	
+	CLI.add_command('about', funcref(self, 'about'))\
+	.set_description("Shows CLIs about.")
 	
 
 
@@ -246,6 +251,30 @@ func help(command: String) -> void:
 			}))
 	
 	CLI.newline()
+
+
+func about() -> void:
+	var config: ConfigFile = ConfigFile.new()
+	var godot_engine: Dictionary = Engine.get_version_info()
+	var cli_version: String = "0.0.0"
+	var godot_version: String = "{ma}.{mi}.{pa}"
+	
+	godot_version = godot_version.format({
+		"ma": godot_engine["major"],
+		"mi": godot_engine["minor"],
+		"pa": godot_engine["patch"]
+	})
+	
+	if(config.load(CONFIG_PATH) == OK):
+		cli_version = config.get_value("plugin", "version")
+	
+	CLI.write(BB.bold("uPhoric Studios"))
+	CLI.write("CLI " + cli_version)
+	CLI.write("Runnng on Godot Engine " + godot_version)
+	CLI.newline()
+	CLI.write("Created by: Alexandros Petrou & Mayhew Steyn")
+
+
 
 
 #func get_name():
