@@ -6,16 +6,16 @@ enum CHECK {
 }
 
 var _types
-var _name: String
-var _description: String
+var name: String
+var description: String
 var _type
 var _original_value
 
 func _init(name: String, type: int, description: String = "") -> void:
-	_types = load("res://addons/uphoric.CLI/src/types/Types.gd").new()
-	_name = name
-	_type = _types.get_type(type)
-	_description = description
+	self._types = load("res://addons/uphoric.CLI/src/types/Types.gd").new()
+	self.name = name
+	self._type = _types.get_type(type)
+	self.description = description
 
 func set_value(value: String) -> int:
 	_original_value = value
@@ -31,7 +31,7 @@ func get_value():
 
 
 func describe() -> String:
-	return "[" + _name + ": " + _type._name + "] :: " + _description
+	return "[" + name + ": " + _type._name + "] :: " + description
 
 
 func get_original_value():

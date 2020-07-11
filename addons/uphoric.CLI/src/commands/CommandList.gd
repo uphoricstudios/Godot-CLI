@@ -39,12 +39,16 @@ func get_command_names() -> Array:
 
 func reload_commands() -> void:
 	for key in _loaded_commands:
-		if(key != "default.gd"):
+		if(key != "reloader.gd"):
 			_loaded_commands.erase(key)
 	
-	_commands.clear()
+	if(_commands.has("reload")):
+		var reloader = _commands["reload"]
+		_commands.clear()
+		_commands["reload"] = reloader
 	
 	var dir := Directory.new()
+	
 	if dir.open(LOAD_PATH) == OK:
 		dir.list_dir_begin()
 		var file_name: String = dir.get_next()
@@ -56,8 +60,9 @@ func reload_commands() -> void:
 					_loaded_commands[file_name] = command_script.new()
 			
 			file_name = dir.get_next()
+	
 	else:
-		print("An error occurred when trying to access the path.")
+		print("CLI: An error occurred when trying to access the path.")
 	
 	_regen_command_names()
 

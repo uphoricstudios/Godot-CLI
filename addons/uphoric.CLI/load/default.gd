@@ -1,23 +1,20 @@
 extends Reference
 
-var platform: String = OS.get_name()
+
+const BB = preload("res://addons/uphoric.CLI/src/helpers/BB.gd")
+var PLATFORM: String = OS.get_name()
 
 func _init() -> void:
-	platform = OS.get_name()
 	var terminal_name: String
 	
-	if(platform == "Windows"):
+	if(PLATFORM == "Windows"):
 		terminal_name = "powershell"
-		pass
 	
-	elif(platform == "X11"):
+	elif(PLATFORM == "X11"):
 		pass
-	
-	elif(platform == "OSX"):
+
+	elif(PLATFORM == "OSX"):
 		pass
-	
-	CLI.add_command('reload', funcref(self, 'reload'))\
-	.set_description("Reloads all commands, and reloads most of the CLIs state.")
 	
 	CLI.add_command('clear', funcref(self, 'clear'))\
 	.set_description("Clears the console.")
@@ -30,7 +27,7 @@ func _init() -> void:
 	.add_argument("path", TYPE_STRING, "Path to directory.")
 	
 	CLI.add_command('opendir', funcref(self, 'opendir'))\
-	.set_description("Opens platforms file explorer to current working directory.")
+	.set_description("Opens PLATFORMs file explorer to current working directory.")
 	
 	CLI.add_command('mkdir', funcref(self, 'mkdir'))\
 	.set_description("Creates directory at a given path.")\
@@ -43,21 +40,16 @@ func _init() -> void:
 	.set_description("Backs up current Godot project to a compressed file. The file name will be the date and time of backup.")\
 	
 	CLI.add_command(terminal_name, funcref(self, 'native_terminal'))\
-	.set_description("Sends commands to the platform's native terminal. All commands will be non-blocking and will not return an output. The use of this command is discouraged, it's only meant for things that cannot be done with the CLI.")\
+	.set_description("Sends commands to the platforms native terminal. All commands will be non-blocking and will not return an output. The use of this command is discouraged, it's only meant for things that cannot be done with the CLI.")\
 	.add_argument("args", TYPE_STRING, "Arguments to be passed to the terminal.")
 	
 	CLI.add_command('commands', funcref(self, 'commands'))\
 	.set_description("Lists all available commands.")
 	
 	CLI.add_command('help', funcref(self, 'help'))\
-	.set_description("Shows command description and arguments.")\
+	.set_description("Shows command's description and arguments.")\
 	.add_argument("command", TYPE_STRING, "Name of command to get help for.")
 	
-
-func reload() -> void:
-	CLI.reload_commands()
-	CLI.clear()
-	CLI.write("CLI successfully reloaded.")
 
 
 func clear() -> void:
@@ -70,36 +62,37 @@ func ls() -> void:
 	var file := File.new()
 	var current_dir: String = CLI.get_current_directory()
 	var hide_hidden_files: bool = true
-	var results: String = "[table=3]\n"
-	results += "[cell][right]Bytes[/right][/cell]\n"
-	results += "[cell] [/cell]\n"
-	results += "[cell]Name[/cell]\n"
-	results += "[cell][right]=====[/right][/cell]\n"
-	results += "[cell]|[/cell]\n"
-	results += "[cell]=====[/cell]\n"
+	var cells: Array = []
 	
+	cells.append(BB.cell(BB.right(BB.bold("Bytes"))))
+	cells.append(BB.cell(""))
+	cells.append(BB.cell(BB.bold("Names")))
+	cells.append(BB.cell(BB.right("=====")))
+	cells.append(BB.cell("|"))
+	cells.append(BB.cell("====="))
+
 	if dir.open(current_dir) == OK:
 		dir.list_dir_begin(true, hide_hidden_files)
 		var current: String = dir.get_next()
 		
 		while(!current.empty()):
+			
 			if(dir.file_exists(current)):
 				file.open(current_dir + current, File.READ)
-				results += "[cell][right]" + str(file.get_len()) + "[/right][/cell]\n"
-				results += "[cell]|[/cell]\n"
-				results += "[cell]" + current + "[/cell]\n"
+				cells.append(BB.cell((BB.right(str(file.get_len())))))
+				cells.append(BB.cell("|"))
+				cells.append(BB.cell(current))
 				file.close()
 			
 			else:
-				results += "[cell] [/cell]\n"
-				results += "[cell]|[/cell]\n"
-				results += "[cell]" + current + "[/cell]\n"
+				cells.append(BB.cell(""))
+				cells.append(BB.cell("|"))
+				cells.append(BB.cell(current))
 			
 			current = dir.get_next()
 	
-	results += "[/table]\n"
 	CLI.newline()
-	CLI.write(results)
+	CLI.write(BB.table(3, cells))
 
 
 func cd(path: String) -> void:
@@ -110,14 +103,14 @@ func cd(path: String) -> void:
 
 
 func opendir() -> void:
-	if(platform == "Windows"):
+	if(PLATFORM == "Windows"):
 		OS.execute("explorer", ["."], false)
 		CLI.write("Opening directory...")
 	
-	elif(platform == "X11"):
+	elif(PLATFORM == "X11"):
 		pass
 	
-	elif(platform == "OSX"):
+	elif(PLATFORM == "OSX"):
 		pass
 
 
@@ -181,71 +174,76 @@ func backup() -> void:
 		"backup_dir": backup_dir
 	})
 	
-	if(platform == "Windows"):
+	if(PLATFORM == "Windows"):
 		OS.execute("powershell.exe", [args], false)
 		CLI.write("Backup complete.")
 	
-	elif(platform == "X11"):
+	elif(PLATFORM == "X11"):
 		pass
 	
-	elif(platform == "OSX"):
+	elif(PLATFORM == "OSX"):
 		pass
 
 
 func native_terminal(args: String) -> void:
-	if(platform == "Windows"):
+	if(PLATFORM == "Windows"):
 		OS.execute("powershell.exe", [args], false)
 		pass
 	
-	elif(platform == "X11"):
+	elif(PLATFORM == "X11"):
 		pass
 	
-	elif(platform == "OSX"):
+	elif(PLATFORM == "OSX"):
 		pass
 
 
 func commands() -> void:
 	var command_list: Dictionary = CLI._command_list.get_commands()
-	var results: String = "[table=3]\n"
-	results += "[cell][right]Name[/right][/cell]\n"
-	results += "[cell] [/cell]\n"
-	results += "[cell]Description[/cell]\n"
-	results += "[cell][right]=====[/right][/cell]\n"
-	results += "[cell]|[/cell]\n"
-	results += "[cell]=====[/cell]\n"
+	var cells: Array = []
+	
+	cells.append(BB.cell(BB.right(BB.bold("Name"))))
+	cells.append(BB.cell(""))
+	cells.append(BB.cell(BB.bold("Description")))
+	cells.append(BB.cell(BB.right("=====")))
+	cells.append(BB.cell("|"))
+	cells.append(BB.cell("====="))
 	
 	for key in command_list:
-		results += "[cell][right]" + key + "[/right][/cell]\n"
-		results += "[cell]|[/cell]\n"
-		results += "[cell]" + command_list[key].description + "[/cell]\n"
+		cells.append(BB.cell(BB.right(BB.color(key, BB.GOLD))))
+		cells.append(BB.cell("|"))
+		cells.append(BB.cell(command_list[key].description))
 	
-	results += "[/table]\n"
 	CLI.newline()
-	CLI.write(results)
+	CLI.write(BB.table(3, cells))
 
 
 func help(command: String) -> void:
 	var command_list = CLI._command_list
 	
 	if(!command_list.has(command)):
-		CLI.error("The command '" + command + "' does not exist.")
+		CLI.error("The command " + BB.color(command, BB.GOLD) + " does not exist.")
 		return
 	
 	var cmd = command_list.get_command(command)
 
 	CLI.newline()
-	CLI.write(cmd.name + ":")
+	CLI.write(BB.color(cmd.name, BB.GOLD) )
 	CLI.newline()
-	CLI.write("Description: ")
+	CLI.write(BB.bold("Description") + ": ")
 	CLI.write(cmd.description)
 	CLI.newline()
 	
 	if(cmd.arguments.empty()):
 		CLI.write("No required arguments.")
 	else:
-		CLI.write("Arguments: ")
+		CLI.write(BB.bold("Arguments") + ": ")
+		var arg_desc: String = "[{name}: {arg_type}] :: {desc}"
 		for arg in cmd.arguments:
-			CLI.write(arg.describe())
+			CLI.write(arg_desc.format({
+				"name": arg.name,
+				"arg_type": CLI.color_text(arg._type._name, CLI.COLORS.L_BLUE),
+				"desc": arg.description
+			}))
 	
 	CLI.newline()
 

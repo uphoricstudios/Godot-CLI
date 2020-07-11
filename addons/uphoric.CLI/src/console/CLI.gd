@@ -3,7 +3,7 @@ extends Node
 
 signal user_input
 
-const COLORS = preload("res://addons/uphoric.CLI/src/console/Colors.gd")
+const BB = preload("res://addons/uphoric.CLI/src/helpers/BB.gd")
 const PARSER = preload("res://addons/uphoric.CLI/src/console/InputParser.gd")
 const ARGUMENT = preload("res://addons/uphoric.CLI/src/arguments/Argument.gd")
 const HOTKEYS = preload("res://addons/uphoric.CLI/src/console/Hotkeys.gd")
@@ -22,7 +22,6 @@ func _ready() -> void:
 	_command_list = load("res://addons/uphoric.CLI/src/commands/CommandList.gd").new()
 	_auto = load("res://addons/uphoric.CLI/src/console/AutoComplete.gd").new()
 	current_dir = ProjectSettings.globalize_path("res://")
-	print(current_dir)
 
 
 func input():
@@ -36,7 +35,7 @@ func add_command(name: String, function: FuncRef):
 	if(check == _command_list.CHECK.OK):
 		return _command_list.get_command(cmd_name)
 	elif(check == _command_list.CHECK.ALREADY_EXISTS):
-		error(color_text(cmd_name, COLORS.GOLD) + " could not be added.")
+		error(BB.color(cmd_name, BB.GOLD) + " could not be added.")
 		error("A command with that name already exists.")
 
 
@@ -55,13 +54,8 @@ func newline(num_lines: int = 1) -> void:
 			_cli_ui.console.newline()
 
 
-func color_text(text: String, color: String) -> String:
-	var result: String = "[color={color}]{text}[/color]"
-	return result.format({"color": color, "text": text})
-
-
 func error(text: String) -> void:
-	write("+ " + color_text(text, COLORS.RED))
+	write("+ " + BB.color(text, BB.RED))
 
 
 func reload_commands() -> void:
@@ -88,13 +82,13 @@ func _on_cli_input_entered(text: String) -> void:
 	# Returns input to commands that require them
 	if(_expect_input):
 		_expect_input = false
-		_cli_ui.console.append_bbcode("=> " + color_text(text, COLORS.AQUA))
+		_cli_ui.console.append_bbcode("=> " + BB.color(text, BB.AQUA))
 		newline()
 		_cli_ui.line_edit.clear()
 		emit_signal("user_input", text)
 		return
 	
-	_cli_ui.console.append_bbcode(">> " + color_text(text, COLORS.AQUA))
+	_cli_ui.console.append_bbcode(">> " + BB.color(text, BB.AQUA))
 	_history.push(text)
 	newline()
 	_cli_ui.line_edit.clear()
@@ -160,7 +154,7 @@ func _parse_input(text: String) -> void:
 	var cmd_name: String = input.pop_front().to_lower()
 	
 	if(!_command_list.has(cmd_name)):
-		error(not_found_error.format({"cmd_name": cmd_name}))
+		error(not_found_error.format({"cmd_name": BB.color(cmd_name, BB.GOLD)}))
 		return
 	
 	var cmd = _command_list.get_command(cmd_name)
@@ -177,9 +171,9 @@ func _parse_input(text: String) -> void:
 		if(check == ARGUMENT.CHECK.FAILED):
 			var ori_arg: String = cmd.arguments[i].get_original_value()
 			error("Unexpected argument '{ori_arg}'".format(
-				{"ori_arg": color_text(ori_arg, COLORS.AQUA)}
+				{"ori_arg": BB.color(ori_arg, BB.AQUA)}
 				))
-			error(color_text(cmd_name, COLORS.GOLD) + " expects:")
+			error(BB.color(cmd_name, BB.GOLD) + " expects:")
 			for arg in cmd.arguments:
 				error(arg.describe())
 			return
