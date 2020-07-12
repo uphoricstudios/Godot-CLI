@@ -22,14 +22,16 @@ func _init() -> void:
 	.set_description("Clears the console.")
 	
 	CLI.add_command('ls', funcref(self, 'ls'))\
-	.set_description("Lists the current directory's contents.")
+	.set_description("Lists the current directory's contents.")\
+	.add_argument("path", TYPE_STRING, "Path to directory.", true)
 	
 	CLI.add_command('cd', funcref(self, 'cd'))\
 	.set_description("Changes the current working directory.")\
 	.add_argument("path", TYPE_STRING, "Path to directory.")
 	
 	CLI.add_command('opendir', funcref(self, 'opendir'))\
-	.set_description("Opens PLATFORMs file explorer to current working directory.")
+	.set_description("Opens PLATFORMs file explorer to current working directory.")\
+	.add_argument("path", TYPE_STRING, "Path to directory.", true)
 	
 	CLI.add_command('mkdir', funcref(self, 'mkdir'))\
 	.set_description("Creates directory at a given path.")\
@@ -55,12 +57,6 @@ func _init() -> void:
 	CLI.add_command('about', funcref(self, 'about'))\
 	.set_description("Shows CLIs about.")
 	
-	CLI.add_command('optional', funcref(self, 'optional'))\
-	.set_description("Testing CLI optional arguments.")\
-	.add_argument("arg1", TYPE_STRING, "arg1")\
-	.add_argument("arg2", TYPE_BOOL, "arg2")\
-	.add_argument("arg3", TYPE_STRING, "arg3", true)\
-	.add_argument("arg4", TYPE_STRING, "arg4", true)
 
 
 func clear() -> void:
@@ -68,10 +64,16 @@ func clear() -> void:
 
 
 # add config to allow to show hidden
-func ls() -> void:
+func ls(path: String = "") -> void:
 	var dir: Directory = Directory.new()
 	var file := File.new()
-	var current_dir: String = CLI.get_current_directory()
+	var current_dir: String = CLI.get_current_directory() + path
+	
+	if(!path.empty()):
+		if(!dir.dir_exists(current_dir)):
+			CLI.error("Cannot find path to '" + path + "' because it does not exist.")
+			return
+	
 	var hide_hidden_files: bool = true
 	var cells: Array = []
 	
@@ -89,7 +91,7 @@ func ls() -> void:
 		while(!current.empty()):
 			
 			if(dir.file_exists(current)):
-				file.open(current_dir + current, File.READ)
+				var test = file.open(current_dir + "/" + current, File.READ)
 				cells.append(BB.cell((BB.right(str(file.get_len())))))
 				cells.append(BB.cell("|"))
 				cells.append(BB.cell(current))
@@ -104,6 +106,7 @@ func ls() -> void:
 	
 	CLI.newline()
 	CLI.write(BB.table(3, cells))
+	CLI.newline()
 
 
 func cd(path: String) -> void:
@@ -113,9 +116,18 @@ func cd(path: String) -> void:
 	CLI.error("Cannot find path to '" + path + "' because it does not exist.")
 
 
-func opendir() -> void:
+func opendir(path: String = "") -> void:
+	var dir: Directory = Directory.new()
+	var current_dir: String = CLI.get_current_directory() + path
+	
+	if(!path.empty()):
+		if(!dir.dir_exists(current_dir)):
+			CLI.error("Cannot find path to '" + path + "' because it does not exist.")
+			return
+	
 	if(PLATFORM == "Windows"):
-		OS.execute("explorer", ["."], false)
+		current_dir = current_dir.replace("/", "\\")
+		OS.execute("explorer", [current_dir], false)
 		CLI.write("Opening directory...")
 	
 	elif(PLATFORM == "X11"):
@@ -287,13 +299,6 @@ func about() -> void:
 	CLI.newline()
 	CLI.write("Created by: Alexandros Petrou & Mayhew Steyn")
 
-
-func optional(arg1: String, arg2: bool, arg3: String = "o1", arg4: String = "o2"):
-	CLI.write("Runs!")
-	CLI.write(arg1)
-	CLI.write(arg2)
-	CLI.write(arg3)
-	CLI.write(arg4)
 
 #func get_name():
 #	CLI.write("What is your first name?")
