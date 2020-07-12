@@ -55,6 +55,12 @@ func _init() -> void:
 	CLI.add_command('about', funcref(self, 'about'))\
 	.set_description("Shows CLIs about.")
 	
+	CLI.add_command('optional', funcref(self, 'optional'))\
+	.set_description("Testing CLI optional arguments.")\
+	.add_argument("arg1", TYPE_STRING, "arg1")\
+	.add_argument("arg2", TYPE_BOOL, "arg2")\
+	.add_argument("arg3", TYPE_STRING, "arg3", true)\
+	.add_argument("arg4", TYPE_STRING, "arg4", true)
 
 
 func clear() -> void:
@@ -240,15 +246,22 @@ func help(command: String) -> void:
 	
 	if(cmd.arguments.empty()):
 		CLI.write("No required arguments.")
+	
 	else:
 		CLI.write(BB.bold("Arguments") + ": ")
-		var arg_desc: String = "[{name}: {arg_type}] :: {desc}"
+		var cells: Array = []
+		var arg_name: String = BB.cell("[{name}: {type}]")
+		
 		for arg in cmd.arguments:
-			CLI.write(arg_desc.format({
-				"name": arg.name,
-				"arg_type": CLI.color_text(arg._type._name, CLI.COLORS.L_BLUE),
-				"desc": arg.description
+			cells.append(arg_name.format({
+				"name": arg.get_name(),
+				"type": BB.color(arg.get_type(), BB.L_BLUE)
 			}))
+			cells.append(BB.cell(" :: "))
+			cells.append(BB.cell("optional" if(arg.is_optional()) else "required"))
+			cells.append(BB.cell(" :: "))
+			cells.append(BB.cell(arg.get_description()))
+		CLI.write(BB.table(5, cells))
 	
 	CLI.newline()
 
@@ -275,7 +288,12 @@ func about() -> void:
 	CLI.write("Created by: Alexandros Petrou & Mayhew Steyn")
 
 
-
+func optional(arg1: String, arg2: bool, arg3: String = "o1", arg4: String = "o2"):
+	CLI.write("Runs!")
+	CLI.write(arg1)
+	CLI.write(arg2)
+	CLI.write(arg3)
+	CLI.write(arg4)
 
 #func get_name():
 #	CLI.write("What is your first name?")

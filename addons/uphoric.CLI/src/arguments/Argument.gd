@@ -5,17 +5,20 @@ enum CHECK {
 	FAILED
 }
 
+var _name: String
+var _description: String
+
+var _optional: bool
 var _types
-var name: String
-var description: String
 var _type
 var _original_value
 
-func _init(name: String, type: int, description: String = "") -> void:
+func _init(name: String, type: int, description: String = "", optional: bool = false) -> void:
 	self._types = load("res://addons/uphoric.CLI/src/types/Types.gd").new()
-	self.name = name
+	self._name = name
+	self._description = description
+	self._optional = optional
 	self._type = _types.get_type(type)
-	self.description = description
 
 func set_value(value: String) -> int:
 	_original_value = value
@@ -30,9 +33,21 @@ func get_value():
 	return _type.get_normalized_value()
 
 
-func describe() -> String:
-	return "[" + name + ": " + _type._name + "] :: " + description
+func get_name() -> String:
+	return _name
+
+
+func get_description() -> String:
+	return _description
+
+
+func get_type() -> String:
+	return _type._name
 
 
 func get_original_value():
 	return _original_value
+
+
+func is_optional() -> bool:
+	return _optional

@@ -4,7 +4,7 @@ const regex_pattern = "^(true|false)$"
 
 
 func _init() -> void:
-	_name = 'Int'
+	_name = 'Bool'
 	_type = TYPE_INT
 
 

@@ -18,8 +18,8 @@ func set_description(desc: String):
 	return self
 
 
-func add_argument(arg_name: String, type: int, desc: String = ""):
-	arguments.append(ARGUMENT.new(arg_name, type, desc))
+func add_argument(arg_name: String, type: int, desc: String = "", optional: bool = false):
+	arguments.append(ARGUMENT.new(arg_name, type, desc, optional))
 	return self
 
 

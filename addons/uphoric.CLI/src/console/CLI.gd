@@ -39,9 +39,9 @@ func add_command(name: String, function: FuncRef):
 		error("A command with that name already exists.")
 
 
-func write(text: String) -> void:
+func write(text) -> void:
 	if(!mute):
-		_cli_ui.console.append_bbcode(text)
+		_cli_ui.console.append_bbcode(str(text))
 		_cli_ui.console.newline()
 
 
@@ -147,19 +147,41 @@ func _parse_input(text: String) -> void:
 	if(text.empty()):
 		return
 	
-	var not_found_error: String = "The command {cmd_name} could not be found. Misspelt?"
-	var num_arg_error: String = "Incorrect number of arguments, {args_num} expected."
 	var input: Array = PARSER.parse(text)
 	var cmd_name: String = input.pop_front().to_lower()
 	
 	if(!_command_list.has(cmd_name)):
+		var not_found_error: String = "The command {cmd_name} could not be found. Misspelt?"
 		error(not_found_error.format({"cmd_name": BB.color(cmd_name, BB.GOLD)}))
 		return
 	
 	var cmd = _command_list.get_command(cmd_name)
 	
-	if(len(input) != len(cmd.arguments)):
-		error(num_arg_error.format({"args_num": len(cmd.arguments)}))
+	var real_arg_count: int = len(cmd.arguments)
+	var input_count: int = len(input)
+	var optional_arg_count: int = 0
+	
+	for arg in cmd.arguments:
+		if(arg.is_optional()):
+			optional_arg_count += 1
+	
+	var required_arg_count: int = real_arg_count - optional_arg_count
+	
+	if(input_count > real_arg_count || input_count < required_arg_count):
+		error("Incorrect number of arguments:")
+		var cells: Array = []
+		var arg_name: String = BB.cell("[{name}: {type}]")
+		
+		for arg in cmd.arguments:
+			cells.append(arg_name.format({
+				"name": arg.get_name(),
+				"type": BB.color(arg.get_type(), BB.L_BLUE)
+			}))
+			cells.append(BB.cell(" :: "))
+			cells.append(BB.cell("optional" if(arg.is_optional()) else "required"))
+			cells.append(BB.cell(" :: "))
+			cells.append(BB.cell(arg.get_description()))
+		CLI.write(BB.table(5, cells))
 		return
 	
 	var normalized_args: Array = []
@@ -167,15 +189,31 @@ func _parse_input(text: String) -> void:
 	var i: int = 0
 	while(i < len(input)):
 		var check: int = cmd.arguments[i].set_value(input[i])
+		
 		if(check == ARGUMENT.CHECK.FAILED):
 			var ori_arg: String = cmd.arguments[i].get_original_value()
+			
 			error("Unexpected argument '{ori_arg}'".format(
 				{"ori_arg": BB.color(ori_arg, BB.AQUA)}
-				))
+			))
+			
 			error(BB.color(cmd_name, BB.GOLD) + " expects:")
+			var cells: Array = []
+			var arg_name: String = BB.cell("[{name}: {type}]")
+			
 			for arg in cmd.arguments:
-				error(arg.describe())
+				cells.append(arg_name.format({
+					"name": arg.get_name(),
+					"type": BB.color(arg.get_type(), BB.L_BLUE)
+				}))
+				cells.append(BB.cell(" :: "))
+				cells.append(BB.cell("optional" if(arg.is_optional()) else "required"))
+				cells.append(BB.cell(" :: "))
+				cells.append(BB.cell(arg.get_description()))
+			CLI.write(BB.table(5, cells))
+			
 			return
+		
 		else:
 			normalized_args.append(cmd.arguments[i].get_value())
 		i += 1

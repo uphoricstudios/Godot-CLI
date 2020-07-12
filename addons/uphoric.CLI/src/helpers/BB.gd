@@ -105,6 +105,7 @@ static func cell(text: String) -> String:
 static func table(columns: int, cells: Array) -> String:
 	var result: String = "[table={columns}]"
 	result = result.format({"columns": columns})
+
 	
 	for cell in cells:
 		result += cell

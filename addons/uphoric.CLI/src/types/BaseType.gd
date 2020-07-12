@@ -7,6 +7,7 @@ enum CHECK {
 
 var _name: String
 var _type: int = -1
+
 var _rematch
 var _normalized_value
 
