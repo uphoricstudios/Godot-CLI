@@ -9,15 +9,16 @@ It's thanks to all their hardwork that this project exists. Please check their p
 
 ## Features
 - Command and directory autocompletion with the `tab` hotkey
-- Command history by pressing the `up` or `down` hotkeys for the current session
+- Command history of the current session by pressing the `up` or `down` hotkeys to scroll
 - User prompts
 - `alt + ~` hotkey to quickly open and close the CLI dock
 - Allows for optional arguments
 
 ## Installation
-1. Clone or download this repository into your project's addons folder: `res://addons/uphoric.CLI`
-2. Enable the CLI in the projects/addons settings
-3. Restart your Godot editor
+1. Clone or download this repository
+2. Extract the contents from `addons/uphoric.CLI` to `res://addons/uphoric.CLI` in your project folder
+3. Enable the CLI in the projects/addons settings
+4. Restart your Godot editor
 
 See the [official documentation](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html) for addons for more information.
 
@@ -37,15 +38,15 @@ Register all commands in `func _init()` function
 
 ```gdscript
 func _init() -> void:
-    # add_command takes in the name of the command, and the function reference for the command
-    # set_description takes in a string with the commands description
-    # add_argument takes in the argument name, the argument type, the description and if its optional
+    # add_command takes in the name of the command, and the function reference for the command #
+    # set_description takes in a string with the commands description #
+    # add_argument takes in the argument name, the argument type, the description and if its optional #
 	CLI.add_command('hello', funcref(self, 'hello'))\
 	.set_description("Prints hello to CLI.")\
 	.add_argument("name", TYPE_STRING, "Name to be printed.", true)
 
 
-# if the command has optional argument make sure to give it a default value!
+# if the command has optional argument make sure to give it a default value! #
 func hello(name: String = "") -> void:
     while(name.empty()):
         CLI.error("Please specify name!")
