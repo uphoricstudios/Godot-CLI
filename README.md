@@ -38,15 +38,17 @@ Register all commands in `func _init()` function
 
 ```gdscript
 func _init() -> void:
-    """add_command takes in the name of the command, and the function reference for the command"""
-    """set_description takes in a string with the commands description"""
-    """add_argument takes in the argument name, the argument type, the description and if its optional"""
+    # add_command takes in the name of the command, and the function reference for the command
+    # set_description takes in a string with the commands description
+    # add_argument takes in the argument name, the argument type, the description and if its optional
+
 	CLI.add_command('hello', funcref(self, 'hello'))\
 	.set_description("Prints hello to CLI.")\
 	.add_argument("name", TYPE_STRING, "Name to be printed.", true)
 
 
-"""if the command has optional argument make sure to give it a default value!"""
+# if the command has optional argument make sure to give it a default value!
+
 func hello(name: String = "") -> void:
     while(name.empty()):
         CLI.error("Please specify name!")
