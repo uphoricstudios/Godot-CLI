@@ -30,7 +30,7 @@ func _init() -> void:
 	.add_argument("path", TYPE_STRING, "Path to directory.")
 	
 	CLI.add_command('opendir', funcref(self, 'opendir'))\
-	.set_description("Opens PLATFORMs file explorer to current working directory.")\
+	.set_description("Opens platforms file explorer to current working directory.")\
 	.add_argument("path", TYPE_STRING, "Path to directory.", true)
 	
 	CLI.add_command('mkdir', funcref(self, 'mkdir'))\
@@ -57,6 +57,8 @@ func _init() -> void:
 	CLI.add_command('about', funcref(self, 'about'))\
 	.set_description("Shows CLIs about.")
 	
+#	CLI.add_command('restart', funcref(self, 'restart'))\
+#	.set_description("Restart editor to current project.")
 
 
 func clear() -> void:
@@ -300,6 +302,17 @@ func about() -> void:
 	CLI.write("Created by: Alexandros Petrou & Mayhew Steyn")
 
 
+func restart() -> void:
+	var exe_path: String = OS.get_executable_path()
+	var project_path: String = ProjectSettings.globalize_path("res://")
+	if(PLATFORM == "Windows"):
+		exe_path = exe_path.replace("/", "\\")
+		project_path = (project_path).replace("/", "\\")
+		var c: String = "cd {proj} ; '{exe}' --editor"
+		c = c.format({"proj": project_path, "exe": exe_path})
+		OS.execute("powershell", [c], false)
+	
+	
 #func get_name():
 #	CLI.write("What is your first name?")
 #	var first = yield(CLI.input(), "user_input")
